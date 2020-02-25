@@ -1,16 +1,11 @@
 [package]
-name = "hicard"
+name = "game"
 version = "0.1.0"
-authors = ["J. Cliff Dyer <jcd@sdf.org>"]
+authors = ["Eric Harding <eric.harding@bluetradesys.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#backend
-tokio = { version = "0.2", features = ["full"] }
-warp = "0.2"
 deckofcards = "0.4.0"
-
-# frontend
-yew = "0.12.0"
+uuid = { version = "0.4", features = ["serde", "v4"] }
