@@ -1,6 +1,6 @@
-import init, { run_app } from './pkg/yew_wasm_pack_minimal.js';
+import init, { run_app } from './pkg/hicard_frontend.js';
 async function main() {
-   await init('/pkg/yew_wasm_pack_minimal_bg.wasm');
+   await init('/pkg/hicard_frontend_bg.wasm');
    run_app();
 }
 main()
