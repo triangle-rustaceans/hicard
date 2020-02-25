@@ -27,10 +27,13 @@ pub struct Game {
 
 impl Game {
     fn new() -> Game { 
-        Game { deck : Deck::new(), players : HashMap::new() }
+        Game { 
+            deck : Deck::new(), 
+            players : HashMap::new()
+        }
     }
     fn join(&mut self, name : &str) -> &Player {
-
+        self.players.entry(name.to_owned()).or_insert(Player::new(name))
     }
 }
 
