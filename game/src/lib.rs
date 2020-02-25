@@ -11,10 +11,10 @@ pub struct Player {
 }
 
 impl Player {
-    fn new(name : &str) -> Player {
+    fn new(name : &str, id : Uuid) -> Player {
         Player { 
             name: name.to_owned(), 
-            id: Uuid::new_v4(),
+            id: id,
             card : None
         }
     }
@@ -22,19 +22,27 @@ impl Player {
 
 pub struct Game {
     deck : Deck,
-    players : HashMap<String,Player>
+    players : HashMap<Uuid,Player>,
+    currentPlayer : i32,
+    playOrder : Vec<Uuid>
 }
 
 impl Game {
     pub fn new() -> Game { 
         Game { 
             deck : Deck::new(), 
-            players : HashMap::new()
+            players : HashMap::new(),
+            currentPlayer: -1,
+            playOrder: Vec::new()
         }
     }
     pub fn join(&mut self, name : &str) -> &Player {
-        self.players.entry(name.to_owned()).or_insert(Player::new(name))
+        let id = Uuid::new_v4();
+        let player = Player::new(name, id);
+        self.players.insert(id, player);
+        self.players.get(&id).unwrap()
     }
+
 }
 
 
