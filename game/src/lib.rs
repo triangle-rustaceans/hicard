@@ -10,10 +10,15 @@ pub enum Suit {
 }
 
 
+
 #[cfg(test)]
 mod tests {
+    use super::*;
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn suit_order() {
+        let suits = [Suit::Spade, Suit::Heart, Suit::Diamond, Suit::Club];
+        for s in 0..3 {
+            assert_eq!(true, suits[s] > suits[s+1]);
+        }
     }
 }
