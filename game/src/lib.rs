@@ -23,8 +23,8 @@ impl Player {
 pub struct Game {
     deck : Deck,
     players : HashMap<Uuid,Player>,
-    currentPlayer : i32,
-    playOrder : Vec<Uuid>
+    current_player : i32,
+    play_order : Vec<Uuid>
 }
 
 impl Game {
@@ -32,17 +32,21 @@ impl Game {
         Game { 
             deck : Deck::new(), 
             players : HashMap::new(),
-            currentPlayer: -1,
-            playOrder: Vec::new()
+            current_player: -1,
+            play_order: Vec::new()
         }
     }
     pub fn join(&mut self, name : &str) -> &Player {
         let id = Uuid::new_v4();
         let player = Player::new(name, id);
         self.players.insert(id, player);
-        self.players.get(&id).unwrap()
+        let p = self.players.get(&id).unwrap();
+        self.play_order.push(p.id);
+        p
     }
-
+    // pub fn move(player: Player&) -> Option<Card> {
+        // If player is the current player draw a card and advance the turn
+    // }
 }
 
 
