@@ -11,6 +11,8 @@ edition = "2018"
 tokio = { version = "0.2", features = ["full"] }
 warp = "0.2"
 deckofcards = "0.4.0"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+serde = { version = "1.0", features = ["derive"] }
 
 # frontend
 yew = "0.12.0"
