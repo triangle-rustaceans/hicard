@@ -21,6 +21,7 @@ impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
         html! {
             <p>{ "Hello world!" }</p>
+            <form a
         }
     }
 }

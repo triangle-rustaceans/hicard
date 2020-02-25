@@ -1,4 +1,5 @@
 mod app;
+mod form;
 
 use wasm_bindgen::prelude::*;
 
