@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use deckofcards::{Card,Deck};
 
-struct Player {
+pub struct Player {
     name : String,
     id : Uuid,
     card : Option<Card>
@@ -26,13 +26,13 @@ pub struct Game {
 }
 
 impl Game {
-    fn new() -> Game { 
+    pub fn new() -> Game { 
         Game { 
             deck : Deck::new(), 
             players : HashMap::new()
         }
     }
-    fn join(&mut self, name : &str) -> &Player {
+    pub fn join(&mut self, name : &str) -> &Player {
         self.players.entry(name.to_owned()).or_insert(Player::new(name))
     }
 }
