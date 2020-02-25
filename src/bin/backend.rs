@@ -8,7 +8,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-struct User {
+pub struct User {
 	user_name: String,
 	user_uuid: Uuid,
 }
@@ -63,4 +63,3 @@ async fn main() {
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
-
