@@ -1,3 +1,4 @@
+mod components;
 mod app;
 //mod form;
 
@@ -5,7 +6,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn run_app() -> Result<(), JsValue> {
-    yew::start_app::<app::App>();
+    yew::start_app::<components::App>();
 
     Ok(())
 }

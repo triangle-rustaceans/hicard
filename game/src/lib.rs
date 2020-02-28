@@ -5,15 +5,15 @@ use uuid::Uuid;
 use deckofcards::{Card,Deck};
 
 pub struct Player {
-    name : String,
-    id : Uuid,
-    card : Option<Card>
+    pub name : String,
+    pub id : Uuid,
+    pub card : Option<Card>
 }
 
 impl Player {
     fn new(name : &str, id : Uuid) -> Player {
-        Player { 
-            name: name.to_owned(), 
+        Player {
+            name: name.to_owned(),
             id: id,
             card : None
         }
@@ -28,9 +28,9 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new() -> Game { 
-        Game { 
-            deck : Deck::new(), 
+    pub fn new() -> Game {
+        Game {
+            deck : Deck::new(),
             players : HashMap::new(),
             current_player: -1,
             play_order: Vec::new()
