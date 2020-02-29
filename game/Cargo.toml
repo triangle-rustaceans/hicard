@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 deckofcards = "0.4.0"
-uuid = { version = "0.4", features = ["serde", "v4"] }
+uuid = { version = "0.8", features = ["serde", "v4"] }

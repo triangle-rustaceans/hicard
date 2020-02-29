@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use deckofcards::{Card,Deck};
 
+#[derive(Clone, Debug)]
 pub struct Player {
     pub name : String,
     pub id : Uuid,

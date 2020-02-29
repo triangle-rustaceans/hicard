@@ -42,8 +42,12 @@ impl Component for App {
         html! {
             <body>
             <h1>{"High Card Draw"}</h1>
-            <Register />
-            <button onclick=&self.onclick>{ button_text }</button>
+            <div>
+                <Register />
+            </div>
+            <div>
+                <button onclick=&self.onclick>{ button_text }</button>
+            </div>
             </body>
         }
     }
