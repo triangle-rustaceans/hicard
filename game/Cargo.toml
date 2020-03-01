@@ -8,4 +8,8 @@ edition = "2018"
 
 [dependencies]
 deckofcards = "0.4.0"
+serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "0.8", features = ["serde", "v4"] }
+
+[dev-dependencies]
+serde_json = "1.0.48"

@@ -9,8 +9,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct User {
-	user_name: String,
-	user_uuid: Uuid,
+	name: String,
 }
 
 fn json_body() -> impl Filter<Extract = (User,), Error = warp::Rejection> + Clone {
@@ -19,12 +18,11 @@ fn json_body() -> impl Filter<Extract = (User,), Error = warp::Rejection> + Clon
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
-pub async fn join_game(create: User) -> Result<impl warp::Reply, Infallible> {
+pub async fn join_game(user: User) -> Result<impl warp::Reply, Infallible> {
 	// create a new Uuid, and send it back to the user
 
-	let user_uuid = Uuid::new_v4();
+    Ok(warp::reply::json(game::Game::new().join(&user.name)))
 
-    Ok(StatusCode::CREATED)
 }
 
 #[tokio::main]

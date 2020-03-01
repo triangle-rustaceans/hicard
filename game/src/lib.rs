@@ -2,15 +2,34 @@
 // use std::cmp::{Ord,PartialOrd, Eq, PartialEq};
 use std::collections::HashMap;
 use uuid::Uuid;
-use deckofcards::{Card,Deck};
+use deckofcards::{Card, Deck, Suit};
 
-#[derive(Clone, Debug)]
+use serde::{Serialize, Serializer};
+
+#[derive(Clone, Debug, Serialize)]
 pub struct Player {
     pub name : String,
     pub id : Uuid,
-    pub card : Option<Card>
+    #[serde(serialize_with="serialize_optcard")]
+    pub card : Option<Card>,
 }
 
+fn serialize_optcard<S: Serializer>(card: &Option<Card>, s: S) -> Result<S::Ok, S::Error> {
+    match card {
+        Some(card) => {
+            let rank = card.rank.to_char();
+            let suit = match card.suit {
+                Suit::Clubs => '♣',
+                Suit::Diamonds => '♢',
+                Suit::Hearts => '♡',
+                Suit::Spades => '♠',
+            };
+            let val = format!("{}{}", rank, suit);
+            s.serialize_some(&val)
+        }
+        None => s.serialize_none(),
+    }
+}
 impl Player {
     fn new(name : &str, id : Uuid) -> Player {
         Player {
@@ -54,8 +73,28 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::to_string;
+
     #[test]
     fn play_game() {
         let game = Game::new();
+    }
+
+    #[test]
+    fn serialize_player() {
+        let mut player = Player {
+            name: String::from("Player One"),
+            id: uuid::Uuid::parse_str("550e8400-e29b-41d4-a716-446655440000").unwrap(),
+            card: None,
+        };
+        assert_eq!(
+            &to_string(&player).unwrap(),
+            r#"{"name":"Player One","id":"550e8400-e29b-41d4-a716-446655440000","card":null}"#,
+        );
+        player.card.replace(deckofcards::card!("QH"));
+        assert_eq!(
+            &to_string(&player).unwrap(),
+            r#"{"name":"Player One","id":"550e8400-e29b-41d4-a716-446655440000","card":"Q♡"}"#,
+        );
     }
 }
