@@ -4,13 +4,13 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use deckofcards::{Card, Deck, Suit};
 
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Serialize, Serializer};
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Player {
     pub name : String,
     pub id : Uuid,
-    #[serde(serialize_with="serialize_optcard")]
+    #[serde(skip_deserializing, serialize_with="serialize_optcard")]
     pub card : Option<Card>,
 }
 

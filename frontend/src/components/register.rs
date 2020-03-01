@@ -4,7 +4,9 @@ use game::{Game, Player};
 
 pub enum Msg {
     Register,
+    RegisterComplete(Player),
     Input(String),
+    Failed,
 }
 
 #[derive(Clone, Properties)]
@@ -26,6 +28,7 @@ impl Component for Register {
         Register { properties, link, player: None, input: String::new() }
     }
 
+
     fn update(&mut self, message: Msg) -> ShouldRender {
         match message {
             Msg::Register => {
@@ -36,33 +39,51 @@ impl Component for Register {
 
                     false
                 } else {
-                    /*
                     let fetcher = yew::services::FetchService::new();
                     let register_req = http::Request::post("http://localhost:8080/game")
                         .body(&self.input)
                         .expect("failed to build request");
+                    let register_callback = self.link.callback(|response: http::Response<yew::format::Json<Result<serde_json::Value, anyhow::Error>>>| {
+                        let player: Result<Player, anyhow::Error> =(|response: http::Response<yew::format::Json<Result<serde_json::Value, anyhow::Error>>>| {
+                            let (meta, yew::format::Json(result)) = response.into_parts();
+                            if meta.status.is_success() {
+                                let value = result?;
+                                let player = (|value: serde_json::Value| {
+                                    // Workaround until we implement deserialize for player
+                                    let name = value["name"].as_str()?.to_string();
+                                    let id = uuid:: Uuid::parse_str(&value["id"].as_str()?.to_string()).ok()?;
+
+                                    Some (Player { name, id, card: None })
+                                })(value).ok_or_else(||anyhow::anyhow!("failed to create player"))?;
+                                Ok(player)
+
+                            } else {
+                                Err(result.unwrap_err())
+                            }
+                        })(response);
+                        match player {
+                            Ok(player) => {
+                                console.log(&format!("Got a player: {:?}", player));
+                                Msg::RegisterComplete(player)
+                            }
+                            Err(err) => {
+                                console.error(&format!("{}", err));
+                                Msg::Register
+                            }
+                        }
+                    });
                     let task = fetcher.fetch(
                         register_req,
-                        self.link.callback(|response: http::Response<Result<String, anyhow::Error>>| {
-                                if response.status().is_success() {
-                                let body = response.into_body();
-                                let player: Player = from_json(body)?
-                                    b.
-                                self.player_callback(player)
-                            }
-                        })
-                    )
-                    */
-                    console.log("NOT EMPTY");
-                    let mut game = Game::new();
-                    console.log("GOT game");
-                    let playerref = game.join(&self.input);
-                    console.log("GOT playerref");
-                    self.player = Some(playerref.clone());
-                    console.log(&format!("set self.player to {:?}", playerref));
-                    true
+                        register_callback,
+                    );
+                    false
                 }
             }
+            Msg::RegisterComplete(player) => {
+                self.player.replace(player);
+                true
+            }
+            Msg::Failed => false,
             Msg::Input(input) => {
                 self.input = input;
                 false

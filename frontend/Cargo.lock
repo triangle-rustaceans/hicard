@@ -99,6 +99,7 @@ name = "game"
 version = "0.1.0"
 dependencies = [
  "deckofcards",
+ "serde",
  "uuid",
 ]
 
@@ -121,6 +122,7 @@ dependencies = [
  "anyhow",
  "game",
  "http",
+ "serde_json",
  "uuid",
  "wasm-bindgen",
  "yew",

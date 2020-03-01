@@ -380,6 +380,7 @@ dependencies = [
  "anyhow",
  "game",
  "http 0.2.0",
+ "serde_json",
  "uuid",
  "wasm-bindgen",
  "yew",
