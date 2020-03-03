@@ -1,4 +1,10 @@
-use yew::prelude::*;
+use serde::Serialize;
+
+use yew::{
+    format::Json,
+    prelude::*,
+    services::Task,
+};
 
 use game::{Game, Player};
 
@@ -7,6 +13,11 @@ pub enum Msg {
     RegisterComplete(Player),
     Input(String),
     Failed,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct RegisterPost {
+    name: String
 }
 
 #[derive(Clone, Properties)]
@@ -18,6 +29,7 @@ pub(crate) struct Register {
     link: ComponentLink<Self>,
     player: Option<Player>,
     input: String,
+    tasks: Vec<Box<dyn Task>>,
 }
 
 impl Component for Register {
@@ -25,7 +37,7 @@ impl Component for Register {
     type Message = Msg;
 
     fn create(properties: Self::Properties, link: ComponentLink<Self>) -> Register {
-        Register { properties, link, player: None, input: String::new() }
+        Register { properties, link, player: None, input: String::new(), tasks: Vec::new() }
     }
 
 
@@ -36,14 +48,16 @@ impl Component for Register {
                 console.log(&format!("Registering with name {:?}", self.input));
                 if self.input.is_empty() {
                     console.log("EMPTY");
-
                     false
                 } else {
-                    let fetcher = yew::services::FetchService::new();
-                    let register_req = http::Request::post("http://localhost:8080/game")
-                        .body(&self.input)
+                    let mut fetcher = yew::services::FetchService::new();
+                    let register_req = http::Request::post("http://localhost:3030/game")
+                        .header("Content-Type", "application/json")
+                        .body(serde_json::to_string(&RegisterPost { name: self.input.clone() }).map_err(|err| err.into()))
                         .expect("failed to build request");
-                    let register_callback = self.link.callback(|response: http::Response<yew::format::Json<Result<serde_json::Value, anyhow::Error>>>| {
+                    let register_callback = self.link.callback(|response: http::Response<Json<Result<serde_json::Value, anyhow::Error>>>| {
+                        let mut console = yew::services::ConsoleService::new();
+
                         let player: Result<Player, anyhow::Error> =(|response: http::Response<yew::format::Json<Result<serde_json::Value, anyhow::Error>>>| {
                             let (meta, yew::format::Json(result)) = response.into_parts();
                             if meta.status.is_success() {
@@ -68,7 +82,7 @@ impl Component for Register {
                             }
                             Err(err) => {
                                 console.error(&format!("{}", err));
-                                Msg::Register
+                                Msg::Failed
                             }
                         }
                     });
@@ -76,14 +90,23 @@ impl Component for Register {
                         register_req,
                         register_callback,
                     );
+                    self.tasks.push(Box::new(task));
                     false
                 }
             }
             Msg::RegisterComplete(player) => {
+                self.tasks = self.tasks.drain(..)
+                    .filter(|task| task.is_active())
+                    .collect();
                 self.player.replace(player);
                 true
             }
-            Msg::Failed => false,
+            Msg::Failed => {
+                self.tasks = self.tasks.drain(..)
+                    .filter(|task| task.is_active())
+                    .collect();
+                false
+            },
             Msg::Input(input) => {
                 self.input = input;
                 false

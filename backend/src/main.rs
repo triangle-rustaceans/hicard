@@ -1,6 +1,7 @@
-
+use http::header::HeaderValue;
 use warp::Filter;
 use warp::http::StatusCode;
+use warp::reply::Reply;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::convert::Infallible;
@@ -21,12 +22,19 @@ fn json_body() -> impl Filter<Extract = (User,), Error = warp::Rejection> + Clon
 pub async fn join_game(user: User) -> Result<impl warp::Reply, Infallible> {
 	// create a new Uuid, and send it back to the user
 
-    Ok(warp::reply::json(game::Game::new().join(&user.name)))
+    let mut response = warp::reply::json(game::Game::new().join(&user.name)).into_response();
+    response.headers_mut()
+        .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
 
+    Ok(response)
 }
 
 #[tokio::main]
 async fn main() {
+    let cors = warp::cors()
+        .allow_methods(vec!["POST"])
+        .allow_headers(vec!["Content-Type"])
+        .allow_any_origin();
     // main page
     let root = warp::path::end()
         .map(|| format!("Welcome to the HiCard"));
@@ -40,7 +48,8 @@ async fn main() {
     let game_post = warp::path!("game")
     	.and(warp::post())
     	.and(json_body())
-    	.and_then(join_game);
+    	.and_then(join_game)
+        .with(cors);
 
     // join game with post
     let move_post = warp::path!("move")
@@ -60,4 +69,5 @@ async fn main() {
     warp::serve(routes)
         .run(([127, 0, 0, 1], 3030))
         .await;
+    println!("Serving at http://127.0.0.1:3030")
 }

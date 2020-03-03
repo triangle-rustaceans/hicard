@@ -367,6 +367,7 @@ version = "0.1.0"
 dependencies = [
  "deckofcards",
  "game",
+ "http 0.2.0",
  "serde",
  "tokio",
  "uuid",
@@ -380,6 +381,7 @@ dependencies = [
  "anyhow",
  "game",
  "http 0.2.0",
+ "serde",
  "serde_json",
  "uuid",
  "wasm-bindgen",
