@@ -6,7 +6,7 @@ use yew::{
     services::Task,
 };
 
-use game::{Game, Player};
+use game::{Player};
 
 pub enum Msg {
     Register,
@@ -39,7 +39,6 @@ impl Component for Register {
     fn create(properties: Self::Properties, link: ComponentLink<Self>) -> Register {
         Register { properties, link, player: None, input: String::new(), tasks: Vec::new() }
     }
-
 
     fn update(&mut self, message: Msg) -> ShouldRender {
         match message {
@@ -125,7 +124,7 @@ impl Component for Register {
                 }
             }
             None => {
-                let onclick = self.link.callback(|click| {
+                let onclick = self.link.callback(|_click| {
                     let mut console = yew::services::ConsoleService::new();
                     console.log("Got a click");
                     Msg::Register
