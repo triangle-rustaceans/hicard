@@ -32,7 +32,7 @@ pub async fn join_game(user: User) -> Result<impl warp::Reply, Infallible> {
 
 #[tokio::main]
 async fn main() {
-    let socket = SocketAddr::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 3030);
+    let socket: SocketAddr = (Ipv6Addr::UNSPECIFIED, 3030).into();
     let cors = warp::cors()
         .allow_methods(vec!["POST"])
         .allow_headers(vec!["Content-Type"])
