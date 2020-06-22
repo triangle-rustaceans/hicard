@@ -7,6 +7,7 @@ use tokio::sync::Mutex;
 use std::convert::Infallible;
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
+use std::net::{SocketAddr, IpAddr, Ipv6Addr};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct User {
@@ -31,6 +32,7 @@ pub async fn join_game(user: User) -> Result<impl warp::Reply, Infallible> {
 
 #[tokio::main]
 async fn main() {
+    let socket = SocketAddr::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 3030);
     let cors = warp::cors()
         .allow_methods(vec!["POST"])
         .allow_headers(vec!["Content-Type"])
@@ -44,7 +46,7 @@ async fn main() {
     	.and(warp::get())
     	.map(|| format!("got game"));
 
-    // join game with post
+    // join game with post, get Player
     let game_post = warp::path!("game")
     	.and(warp::post())
     	.and(json_body())
@@ -66,8 +68,8 @@ async fn main() {
     	.or(move_post)
     	.or(result);
 
+    println!("Serving at http://[::0]:3030");
     warp::serve(routes)
-        .run(([127, 0, 0, 1], 3030))
+        .run(socket)
         .await;
-    println!("Serving at http://127.0.0.1:3030")
 }
