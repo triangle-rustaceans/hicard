@@ -17,7 +17,7 @@ fn json_body() -> impl Filter<Extract = (Player,), Error = warp::Rejection> + Cl
 pub async fn join_game(player: Player, aGame: Game) -> Result<impl warp::Reply, Infallible> {
 	// create a new Uuid, and send it back to the player
 
-    let mut response = warp::reply::json(game::Game::new().join(&player.name)).into_response();
+    let mut response = warp::reply::json(aGame.join(&player.name)).into_response();
     response.headers_mut()
         .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
 
