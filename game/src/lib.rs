@@ -100,9 +100,8 @@ impl Game {
     pub fn winner(&self) -> Option<&Player> {
         let mut winner = None;
         let mut highcard = None;
-        for  player in self.players.values() {
+        for player in self.players.values() {
             player.card?;
-
             if highcard.is_none() || player.card > highcard {
                 highcard = player.card;
                 winner = Some(player);
