@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use uuid::Uuid;
 
 use std::net::{SocketAddr, Ipv6Addr};
-use game::Player;
+use game::{Game, Player};
 
 
 fn json_body() -> impl Filter<Extract = (Player,), Error = warp::Rejection> + Clone {
@@ -14,7 +14,7 @@ fn json_body() -> impl Filter<Extract = (Player,), Error = warp::Rejection> + Cl
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
-pub async fn join_game(player: Player) -> Result<impl warp::Reply, Infallible> {
+pub async fn join_game(player: Player, aGame: Game) -> Result<impl warp::Reply, Infallible> {
 	// create a new Uuid, and send it back to the player
 
     let mut response = warp::reply::json(game::Game::new().join(&player.name)).into_response();
@@ -24,10 +24,10 @@ pub async fn join_game(player: Player) -> Result<impl warp::Reply, Infallible> {
     Ok(response)
 }
 
-pub async fn play_game(player_id: &Uuid) -> Result<impl warp::Reply, Infallible> {
+pub async fn play_game(player_id: &Uuid, aGame: Game) -> Result<impl warp::Reply, Infallible> {
     // given a Uuid, make sure player is current player and get a card
 
-    let mut response = warp::reply::json(game::Game::play().join(player_id)).into_response();
+    let mut response = warp::reply::json(aGame::play().join(player_id)).into_response();
     response.headers_mut()
         .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
 
@@ -36,6 +36,8 @@ pub async fn play_game(player_id: &Uuid) -> Result<impl warp::Reply, Infallible>
 
 #[tokio::main]
 async fn main() {
+    let game = Game::new();
+    let game_filter = warp::any().map(move || game.clone());
     let socket: SocketAddr = (Ipv6Addr::UNSPECIFIED, 3030).into();
     let cors = warp::cors()
         .allow_methods(vec!["POST"])
@@ -54,6 +56,7 @@ async fn main() {
     let game_post = warp::path!("game")
     	.and(warp::post())
     	.and(json_body())
+        .and(game_filter.clone())
     	.and_then(join_game)
         .with(cors);
 
@@ -61,6 +64,7 @@ async fn main() {
     let move_post = warp::path!("move")
     	.and(warp::post())
         .and(json_body())
+        .and(game_filter.clone())
         .and_then(play_game)
         .with(cors);
 
