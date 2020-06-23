@@ -1,29 +1,33 @@
 use http::header::HeaderValue;
 use warp::Filter;
-use warp::http::StatusCode;
 use warp::reply::Reply;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 use std::convert::Infallible;
 use uuid::Uuid;
-use serde::{Deserialize, Serialize};
-use std::net::{SocketAddr, IpAddr, Ipv6Addr};
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct User {
-	name: String,
-}
+use std::net::{SocketAddr, Ipv6Addr};
+use game::Player;
 
-fn json_body() -> impl Filter<Extract = (User,), Error = warp::Rejection> + Clone {
+
+fn json_body() -> impl Filter<Extract = (Player,), Error = warp::Rejection> + Clone {
     // When accepting a body, we want a JSON body
     // (and to reject huge payloads)...
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
-pub async fn join_game(user: User) -> Result<impl warp::Reply, Infallible> {
-	// create a new Uuid, and send it back to the user
+pub async fn join_game(player: Player) -> Result<impl warp::Reply, Infallible> {
+	// create a new Uuid, and send it back to the player
 
-    let mut response = warp::reply::json(game::Game::new().join(&user.name)).into_response();
+    let mut response = warp::reply::json(game::Game::new().join(&player.name)).into_response();
+    response.headers_mut()
+        .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
+
+    Ok(response)
+}
+
+pub async fn play_game(player_id: &Uuid) -> Result<impl warp::Reply, Infallible> {
+    // given a Uuid, make sure player is current player and get a card
+
+    let mut response = warp::reply::json(game::Game::play().join(player_id)).into_response();
     response.headers_mut()
         .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
 
@@ -41,7 +45,7 @@ async fn main() {
     let root = warp::path::end()
         .map(|| format!("Welcome to the HiCard"));
 
-    // poll for turn, get
+    // poll for turn, get current status for all players, cards for players, and who's turn is next
     let game_get = warp::path!("game")
     	.and(warp::get())
     	.map(|| format!("got game"));
@@ -56,7 +60,9 @@ async fn main() {
     // join game with post
     let move_post = warp::path!("move")
     	.and(warp::post())
-    	.map(warp::reply);
+        .and(json_body())
+        .and_then(play_game)
+        .with(cors);
 
     // wait for winner result
     let result = warp::path!("results")
