@@ -78,6 +78,12 @@ mod tests {
     #[test]
     fn play_game() {
         let game = Game::new();
+        let player1 = game.join("Cliff");
+        let player2 = game.join("tom");
+        game.move(player2).expect_none("player 2 should not be able to play first");
+        let p1card = game.move(player1).expect("player 1 should get a card");
+        game.move(player1).expect_none("player 1 should not be able to get another card");
+        let p2card = game.move(player2).expect("player 2 should get a card");
     }
 
     #[test]
