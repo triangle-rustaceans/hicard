@@ -27,7 +27,17 @@ pub async fn join_game(player: Player, aGame: Game) -> Result<impl warp::Reply, 
 pub async fn play_game(player_id: &Uuid, aGame: Game) -> Result<impl warp::Reply, Infallible> {
     // given a Uuid, make sure player is current player and get a card
 
-    let mut response = warp::reply::json(aGame::play().join(player_id)).into_response();
+    let mut response = warp::reply::json(aGame.play(player_id)).into_response();
+    response.headers_mut()
+        .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
+
+    Ok(response)
+}
+
+pub async fn show_game(aGame: Game) -> Result<impl warp::Reply, Infallible> {
+    // given a Uuid, make sure player is current player and get a card
+
+    let mut response = warp::reply::json(aGame.show()).into_response();
     response.headers_mut()
         .insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
 
@@ -50,7 +60,9 @@ async fn main() {
     // poll for turn, get current status for all players, cards for players, and who's turn is next
     let game_get = warp::path!("game")
     	.and(warp::get())
-    	.map(|| format!("got game"));
+        .and(game_filter.clone())
+        .and_then(show_game)
+        .with(cors);
 
     // join game with post, get Player
     let game_post = warp::path!("game")
